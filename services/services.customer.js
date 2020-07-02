@@ -1,5 +1,8 @@
 const CustomerModel = require("../models/model.customer");
+const MongoService = require("./services.mongo");
+
 let Validator = require('fastest-validator');
+const { MongoClient } = require("mongodb");
 
 
 let customers = {};
@@ -15,87 +18,72 @@ let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$/;
 
 /* customer validator shema */
 const customerVSchema = {
-		guid: {type: "string", min: 3},
-		
-		first_name: { type: "string", min: 1, max: 50, pattern: namePattern},
-		last_name: { type: "string", min: 1, max: 50, pattern: namePattern},
-		email: { type: "email", max: 75 },
-		zipcode: { type: "string", max: 5, pattern: zipCodePattern},
+    first_name: { type: "string", min: 1, max: 50, pattern: namePattern },
+    last_name: { type: "string", min: 1, max: 50, pattern: namePattern },
+    email: { type: "email", max: 75 },
 
-		password: { type: "string", min: 2, max: 50, pattern: passwordPattern}
-	};
+    password: { type: "string", min: 2, max: 50, pattern: passwordPattern }
+};
 
 /* static customer service class */
-class CustomerService
-{
-	static create(data)
-	{
-		var vres = customerValidator.validate(data, customerVSchema);
-		
-		/* validation failed */
-		if(!(vres === true))
-		{
-			let errors = {}, item;
+class CustomerService {
+    static async create(data) {
+        var vres = customerValidator.validate(data, customerVSchema);
 
-			for(const index in vres)
-			{
-				item = vres[index];
+        /* validation failed */
+        if (!(vres === true)) {
+            let errors = {}, item;
 
-				errors[item.field] = item.message;
-			}
-			
-			throw {
-			    name: "ValidationError",
-			    message: errors
-			};
-		}
+            for (const index in vres) {
+                item = vres[index];
 
-		let customer = new CustomerModel(data.first_name, data.last_name, data.email, data.zipcode, data.password);
+                errors[item.field] = item.message;
+            }
 
-		customer.uid = 'c' + counter++;
+            throw {
+                name: "ValidationError",
+                message: errors
+            };
+        }
 
-		customers[customer.uid] = customer;
+        let customer = new CustomerModel(data.first_name, data.last_name, data.email, data.password, data.role);
+        const res = await MongoService.addUser(customer);
+        if (res instanceof Error) {
+            throw {
+                name: 'OperationError',
+                message: res.message
+            }
+        }
+        return customer;
+    }
 
-		return customer;
-	}
+    static async retrieve(email) {
+        const customer = await MongoService.getUser(email);
+        if (customer instanceof Error) {
+            throw customer;
+        }
+        if (customer == null) {
+            throw new Error('Unable to retrieve a customer by (email:' + email + ')');
+        }
+    }
 
-	static retrieve(uid)
-	{
-		if(customers[uid] != null)
-		{
-			return customers[uid];
-		}
-		else
-		{
-			throw new Error('Unable to retrieve a customer by (uid:'+ uid +')');
-		}
-	}
+    static async update(_id, data) {
+        const customer = MongoService.updateUser(_id, data);
+        if (customer instanceof Error) {
+            throw customer;
+        }
+        if (customer == null) {
+            throw new Error('Unable to retrieve a customer by (uid:' + cuid + ')');
+        }
+    }
 
-	static update(uid, data)
-	{
-		if(customers[uid] != null)
-		{
-			const customer = customers[uid];
-			
-			Object.assign(customer, data);
-		}
-		else
-		{
-			throw new Error('Unable to retrieve a customer by (uid:'+ cuid +')');
-		}
-	}
-
-	static delete(uid)
-	{
-		if(customers[uid] != null)
-		{
-			delete customers[uid];
-		}
-		else
-		{
-			throw new Error('Unable to retrieve a customer by (uid:'+ cuid +')');
-		}
-	}
+    static async delete(_id) {
+        var deleteRes = await MongoService.deleteUser(_id);
+        if(deleteRes instanceof Error)
+        {
+            throw deleteRes;
+        }        
+    }
 }
 
 module.exports = CustomerService;

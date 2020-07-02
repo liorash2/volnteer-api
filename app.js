@@ -21,3 +21,5 @@ app.use('/api/v1/users', users);
 app.use('/api/v1/generate_uid', generate_uid);
 app.use('/api/v1/customer', customer);
 module.exports = app;
+
+

@@ -29,7 +29,7 @@ router.post('/', async (req, res, next) =>
 	}
 	catch(err)
 	{
-		if (err.name === 'ValidationError')
+		if (['ValidationError', 'OperationError'].indexOf(err.name) !== -1)
 		{
         	return res.status(400).json({ error: err.message });
 		}
