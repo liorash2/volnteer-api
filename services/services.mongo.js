@@ -11,6 +11,7 @@ class MongoService {
     static dbName = "volunteers";
     static uri = "mongodb+srv://administrator:wvxNVYswOPWLt7mR@cluster0.4rwmr.azure.mongodb.net/<dbname>?retryWrites=true&w=majority";
     static usersCollection = "users";
+    static organizationCollection = "organizations";
     static async addUser(user) {
         try {
             const client = await MongoClient.connect(MongoService.uri, { useNewUrlParser: true });
@@ -37,6 +38,21 @@ class MongoService {
             const db = await client.db(MongoService.dbName);
             const collection = await db.collection(MongoService.usersCollection);
             const customer = await getUser(collection, email);
+            client.close();
+            return customer;
+        } catch (err) {
+            return new Error(err);
+        }
+
+
+    }
+    static async getUsers() {
+        try {
+            const client = await MongoClient.connect(MongoService.uri, { useNewUrlParser: true });
+            const db = await client.db(MongoService.dbName);
+            const collection = await db.collection(MongoService.usersCollection);
+            const customer = await collection.find({}).toArray();
+
             client.close();
             return customer;
         } catch (err) {
@@ -75,7 +91,39 @@ class MongoService {
         }
 
     }
+    static async addOrganization(organization) {
+        try {
+            const client = await MongoClient.connect(MongoService.uri, { useNewUrlParser: true });
+            const db = await client.db(MongoService.dbName);
+            const collection = await db.collection(MongoService.organizationCollection);
 
+            var existsOrganization = await collection.findOne({ name: organization.name });
+            if (existsOrganization) {
+                return new Error(`Organization  ${organization.name} already exists`);
+            }
+
+            const res = await collection.insertOne(organization);
+
+            console.log('1 document inserted');
+            client.close();
+        }
+        catch (err) {
+            return new Error(err);
+        }
+    }
+
+    static async getAllOrganizations() {
+        try {
+            const client = await MongoClient.connect(MongoService.uri, { useNewUrlParser: true });
+            const db = await client.db(MongoService.dbName);
+            const collection = await db.collection(MongoService.organizationCollection);
+
+            var allOrganizations = await collection.find({}).toArray();
+            return allOrganizations;
+        } catch (err) {
+            return new Error(err);
+        }
+    }
 
 
 }
