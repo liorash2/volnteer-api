@@ -67,8 +67,12 @@ class MongoService {
             const db = await client.db(MongoService.dbName);
             const collection = await db.collection(MongoService.usersCollection);
 
-            const res = await collection.updateOne({ _id: _id }, { $set: user });
+            const res = await collection.updateOne({ _id: ObjectId(_id) }, { $set: user });
             client.close();
+
+            user._id = _id;
+            return user;
+
 
         }
         catch (err) {

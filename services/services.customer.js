@@ -69,13 +69,16 @@ class CustomerService {
     }
 
     static async update(_id, data) {
-        const customer = MongoService.updateUser(_id, data);
+        //delete _id  as it should NOT be updated in mongo
+        delete data._id;
+        const customer = await MongoService.updateUser(_id, data);
         if (customer instanceof Error) {
             throw customer;
         }
         if (customer == null) {
             throw new Error('Unable to retrieve a customer by (uid:' + cuid + ')');
         }
+        return customer;
     }
 
     static async delete(_id) {
