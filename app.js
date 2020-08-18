@@ -8,6 +8,7 @@ let users = require('./routes/users');
 let customer = require('./routes/customer');
 let organization = require('./routes/organization');
 let hobbiesRoute = require('./routes/hobbies.route');
+let regionRouter = require('./routes/regions.route');
 
 var app = express();
 app.use(function (req, res, next) {
@@ -24,6 +25,7 @@ app.use('/api/v1/users', users);
 app.use('/api/v1/customer', customer);
 app.use('/api/v1/organization', organization);
 app.use('/api/v1/hobbies', hobbiesRoute);
+app.use('/api/v1/regions', regionRouter);
 
 app.use('/api/v1/generate_uid', generate_uid);
 module.exports = app;

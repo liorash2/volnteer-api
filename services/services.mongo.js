@@ -13,6 +13,7 @@ class MongoService {
     static usersCollection = "users";
     static organizationCollection = "organizations";
     static hobbiesCollection = "Voluntary_types";
+    static regionsCollection = "regions";
     client;
     db;
     async init() {
@@ -194,6 +195,19 @@ class MongoService {
     }
 
 
+    async GetAllRegions() {
+        try {
+
+            await this.init();
+            let collection = await this.db.collection(MongoService.regionsCollection);
+            return await collection.find({}).toArray();
+        } catch (e) {
+            return new Error(e.message);
+        }
+        finally {
+            await this.destroy();
+        }
+    }
 }
 
 module.exports = MongoService;
