@@ -5,16 +5,24 @@ const OrganizaionService = require('../services/services.organization');
 /* GET orgniaztion listing. */
 router.get('/', async function (req, res, next) {
 
-    const getAllOrganizations = await OrganizaionService.retrieveAll();
-    if (getAllOrganizations instanceof Error) {
-        next(getAllOrganizations);
-    }
-    return res.json(getAllOrganizations);
+	const getAllOrganizations = await OrganizaionService.retrieveAll();
+	if (getAllOrganizations instanceof Error) {
+		next(getAllOrganizations);
+	}
+	return res.json(getAllOrganizations);
 });
 
-router.post('/', async (req,res,next) => {
+router.get('/:id', async function (req, res, next) {
 
-    const body = req.body;
+	const getAllOrganizations = await OrganizaionService.retrieve(req.params.id);
+	if (getAllOrganizations instanceof Error) {
+		next(getAllOrganizations);
+	}
+	return res.json(getAllOrganizations);
+});
+router.post('/', async (req, res, next) => {
+
+	const body = req.body;
 
 	try {
 		const organization = await OrganizaionService.create(body);
@@ -28,6 +36,28 @@ router.post('/', async (req,res,next) => {
 
 		// unexpected error
 		return next(err);
+	}
+});
+
+router.put('/:id', async function (req, res, next) {
+
+	const body = req.body;
+	try {
+		const updatOrganizationResult = await OrganizaionService.update(req.params.id, req.body);
+		return res.status(200).json({ success: true });
+
+	} catch (e) {
+		return res.status(400).json({ error: err.message });
+	}
+
+});
+
+router.delete('/:id', async function (req, res, next) {
+	try {
+		const updatOrganizationResult = await OrganizaionService.delete(req.params.id);
+		return res.status(200);
+	} catch (e) {
+		return res.status(400).json({ error: err.message });
 	}
 });
 

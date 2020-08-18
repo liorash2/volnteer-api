@@ -47,7 +47,8 @@ class CustomerService {
         }
 
         let customer = new CustomerModel(data.first_name, data.last_name, data.email, data.password, data.role);
-        const res = await MongoService.addUser(customer);
+        let mongoService = new MongoService();
+        const res = await mongoService.addUser(customer);
         if (res instanceof Error) {
             throw {
                 name: 'OperationError',
@@ -58,7 +59,8 @@ class CustomerService {
     }
 
     static async retrieve(email) {
-        const customer = await MongoService.getUser(email);
+        let mongoService = new MongoService();
+        const customer = await mongoService.getUser(email);
         if (customer instanceof Error) {
             throw customer;
         }
@@ -69,17 +71,22 @@ class CustomerService {
     }
 
     static async update(_id, data) {
-        const customer = MongoService.updateUser(_id, data);
+        //delete _id  as it should NOT be updated in mongo
+        delete data._id;
+        let mongoService = new MongoService();
+        const customer = await mongoService.updateUser(_id, data);
         if (customer instanceof Error) {
             throw customer;
         }
         if (customer == null) {
             throw new Error('Unable to retrieve a customer by (uid:' + cuid + ')');
         }
+        return customer;
     }
 
     static async delete(_id) {
-        var deleteRes = await MongoService.deleteUser(_id);
+        let mongoService = new MongoService();
+        var deleteRes = await mongoService.deleteUser(_id);
         if(deleteRes instanceof Error)
         {
             throw deleteRes;
@@ -87,7 +94,8 @@ class CustomerService {
     }
 
     static async retrieveAll(){
-        const allCustomers = await MongoService.getUsers();
+        let mongoService = new MongoService();
+        const allCustomers = await mongoService.getUsers();
         if(allCustomers instanceof Error)
         {
             throw  allCustomers;
