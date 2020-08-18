@@ -33,7 +33,8 @@ class OrganizationService {
         }
 
         let organization = new OrganizationModel(data.name);
-        const res = await MongoService.addOrganization(organization);
+        let mongoService = new MongoService();
+        const res = await mongoService.addOrganization(organization);
         if (res instanceof Error) {
             throw {
                 name: 'OperationError',
@@ -43,8 +44,9 @@ class OrganizationService {
         return organization;
     }
 
-    static async retrieve(email) {
-        const customer = await MongoService.getUser(email);
+    static async retrieve(organizationID) {
+        let mongoService = new MongoService();
+        const customer = await mongoService.get(organizationID);
         if (customer instanceof Error) {
             throw customer;
         }
@@ -55,24 +57,29 @@ class OrganizationService {
     }
 
     static async update(_id, data) {
-        const customer = MongoService.updateUser(_id, data);
-        if (customer instanceof Error) {
-            throw customer;
+        let mongoService = new MongoService();
+        delete data._id;
+        const organization = await mongoService.updateOrganization(_id, data);
+        if (organization instanceof Error) {
+            throw organization;
         }
-        if (customer == null) {
+        if (organization == null) {
             throw new Error('Unable to retrieve a customer by (uid:' + cuid + ')');
         }
+        return organization;
     }
 
     static async delete(_id) {
-        var deleteRes = await MongoService.deleteUser(_id);
+        let mongoService = new MongoService();
+        var deleteRes = await mongoService.deleteOrganization(_id);
         if (deleteRes instanceof Error) {
             throw deleteRes;
         }
     }
 
     static async retrieveAll() {
-        const allOrganizations = await MongoService.getAllOrganizations();
+        let mongoService = new MongoService();
+        const allOrganizations = await mongoService.getAllOrganizations();
         if (allOrganizations instanceof Error) {
             throw allOrganizations;
         }
