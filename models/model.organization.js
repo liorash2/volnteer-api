@@ -5,7 +5,7 @@ class OrganizationModel {
     password;
     email;
     phone;
-    regionID;
+    regionCode;
     hobbyID;
     maxVolunteers;
     desc;

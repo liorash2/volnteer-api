@@ -15,7 +15,7 @@ const organizationVSchema = {
     email: { type: "email" },
     maxVolunteers: { type: "number", integer: true, positive: true },
     hobbyID: { type: "number", integer: true, positive: true },
-    regionID: { type: "number", integer: true, positive: true },
+    regionCode: { type: "string", min: 1, max: 4 },
     end: { type: "date", convert: true },
     start: { type: "date", convert: true }
 
