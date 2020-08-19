@@ -108,9 +108,9 @@ class MongoService {
             await this.init();
             const collection = await this.db.collection(MongoService.organizationCollection);
 
-            var existsOrganization = await collection.findOne({ name: organization.name });
+            var existsOrganization = await collection.findOne({ email: organization.email });
             if (existsOrganization) {
-                return new Error(`Organization  ${organization.name} already exists`);
+                return new Error(`Organization with mail ${organization.email} already exists`);
             }
 
             const res = await collection.insertOne(organization);

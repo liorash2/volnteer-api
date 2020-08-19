@@ -10,7 +10,15 @@ let organizationValidator = new Validator();
 let namePattern = /([A-Za-z\-\’])*/;
 /* customer validator shema */
 const organizationVSchema = {
-    name: { type: "string", min: 1, max: 50, pattern: namePattern }
+    name: { type: "string", min: 1, max: 50 },
+    password: { type: "string", min: 4 },
+    email: { type: "email" },
+    maxVolunteers: { type: "number", integer: true, positive: true },
+    hobbyID: { type: "number", integer: true, positive: true },
+    regionID: { type: "number", integer: true, positive: true },
+    end: { type: "date", convert: true },
+    start: { type: "date", convert: true }
+
 };
 
 /* static customer service class */
@@ -18,11 +26,11 @@ class OrganizationService {
     static async create(data) {
 
         var validateRes = organizationValidator.validate(data, organizationVSchema);
-        if (!validateRes) {
+        if (!(validateRes === true)) {
             let errors = {}, item;
 
-            for (const index in vres) {
-                item = vres[index];
+            for (const index in validateRes) {
+                item = validateRes[index];
                 errors[item.field] = item.message;
             }
 
@@ -32,7 +40,7 @@ class OrganizationService {
             };
         }
 
-        let organization = new OrganizationModel(data.name);
+        let organization = new OrganizationModel(data);
         let mongoService = new MongoService();
         const res = await mongoService.addOrganization(organization);
         if (res instanceof Error) {
