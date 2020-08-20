@@ -3,12 +3,13 @@ let path = require('path');
 let cookieParser = require('cookie-parser');
 let bodyParser = require('body-parser');
 
-let generate_uid = require('./routes/generate_uid');
-let users = require('./routes/users');
-let customer = require('./routes/customer');
-let organization = require('./routes/organization');
-let hobbiesRoute = require('./routes/hobbies.route');
-let regionRouter = require('./routes/regions.route');
+const generate_uid = require('./routes/generate_uid');
+const users = require('./routes/users');
+const customer = require('./routes/customer');
+const organization = require('./routes/organization');
+const hobbiesRoute = require('./routes/hobbies.route');
+const regionRouter = require('./routes/regions.route');
+const volunteerRoute = require('./routes/volunteer.route');
 
 var app = express();
 app.use(function (req, res, next) {
@@ -26,6 +27,7 @@ app.use('/api/v1/customer', customer);
 app.use('/api/v1/organization', organization);
 app.use('/api/v1/hobbies', hobbiesRoute);
 app.use('/api/v1/regions', regionRouter);
+app.use('/api/v1/volunteer', volunteerRoute);
 
 app.use('/api/v1/generate_uid', generate_uid);
 module.exports = app;

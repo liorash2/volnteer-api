@@ -1,4 +1,4 @@
-const MongoService = require("./services.mongo");
+const MongoService = require("./mongo/service.mongo.hobbies");
 
 
 

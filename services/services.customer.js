@@ -1,8 +1,7 @@
 const CustomerModel = require("../models/model.customer");
-const MongoService = require("./services.mongo");
+const MongoUserService = require("./mongo/service.mongo.users");
 
 let Validator = require('fastest-validator');
-const { MongoClient } = require("mongodb");
 
 
 let customers = {};
@@ -47,7 +46,7 @@ class CustomerService {
         }
 
         let customer = new CustomerModel(data.first_name, data.last_name, data.email, data.password, data.role);
-        let mongoService = new MongoService();
+        let mongoService = new MongoUserService();
         const res = await mongoService.addUser(customer);
         if (res instanceof Error) {
             throw {
@@ -59,7 +58,7 @@ class CustomerService {
     }
 
     static async retrieve(email) {
-        let mongoService = new MongoService();
+        let mongoService = new MongoUserService();
         const customer = await mongoService.getUser(email);
         if (customer instanceof Error) {
             throw customer;
@@ -73,7 +72,7 @@ class CustomerService {
     static async update(_id, data) {
         //delete _id  as it should NOT be updated in mongo
         delete data._id;
-        let mongoService = new MongoService();
+        let mongoService = new MongoUserService();
         const customer = await mongoService.updateUser(_id, data);
         if (customer instanceof Error) {
             throw customer;
@@ -85,7 +84,7 @@ class CustomerService {
     }
 
     static async delete(_id) {
-        let mongoService = new MongoService();
+        let mongoService = new MongoUserService();
         var deleteRes = await mongoService.deleteUser(_id);
         if(deleteRes instanceof Error)
         {
@@ -94,7 +93,7 @@ class CustomerService {
     }
 
     static async retrieveAll(){
-        let mongoService = new MongoService();
+        let mongoService = new MongoUserService();
         const allCustomers = await mongoService.getUsers();
         if(allCustomers instanceof Error)
         {

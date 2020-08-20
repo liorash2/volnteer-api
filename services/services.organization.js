@@ -1,8 +1,10 @@
 const OrganizationModel = require("../models/model.organization");
-const MongoService = require("./services.mongo");
+const UserModel = require("../models/model.customer");
+const MongoService = require("./mongo/service.mongo.organization");
+const UserMongoSerive = require('./mongo/service.mongo.users');
+const CustomerModel = require("../models/model.customer");
 
 let Validator = require('fastest-validator');
-
 /* create an instance of the validator */
 let organizationValidator = new Validator();
 
@@ -20,8 +22,6 @@ const organizationVSchema = {
     start: { type: "date", convert: true }
 
 };
-
-/* static customer service class */
 class OrganizationService {
     static async create(data) {
 
@@ -47,6 +47,18 @@ class OrganizationService {
             throw {
                 name: 'OperationError',
                 message: res.message
+            }
+        }
+        //create user
+        const user = new CustomerModel(data.name, '', data.email, data.password, 'organization', organization._id.toString());
+        const userMongoService = new UserMongoSerive();
+        const createUser = await userMongoService.addUser(user);
+        if (createUser instanceof Error) {
+            //need to delete org
+            await mongoService.deleteOrganization(organization._id.toString());
+            throw {
+                name: 'OperationError',
+                message: createUser.message
             }
         }
         return organization;
