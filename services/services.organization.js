@@ -76,6 +76,17 @@ class OrganizationService {
         return customer;
     }
 
+    static async retrieveByMail(email) {
+        let mongoService = new MongoService();
+        const organizationRes = await mongoService.GetByMail(email);
+        if (organizationRes instanceof Error) {
+            throw organizationRes;
+        }
+        if (organizationRes == null) {
+            throw new Error('Unable to retrieve a customer by (email:' + email + ')');
+        }
+        return organizationRes;
+    }
     static async update(_id, data) {
         let mongoService = new MongoService();
         delete data._id;
