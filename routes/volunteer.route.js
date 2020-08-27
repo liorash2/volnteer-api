@@ -19,9 +19,17 @@ router.get('/:email', async function (req, res, next) {
 	}
 	return res.json(getVolunteer);
 });
+router.get('/organizations/:email', async function (req, res, next) {
+	try {
+		const organizationsMatching = await VolunteerService.GetOrganizationForVolunteer(req.params.email);
+		return res.status(200).json(organizationsMatching);
+	} catch (e) {
+		return next(e);
+	}
+});
 router.post('/', async (req, res, next) => {
 	const body = req.body;
-	try {		
+	try {
 		const createVolunteerRes = await VolunteerService.create(body);
 		return res.status(201).json({ volunteer: createVolunteerRes });
 	}

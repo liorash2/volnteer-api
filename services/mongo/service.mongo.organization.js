@@ -38,12 +38,15 @@ class MongoOrganizationService extends MongoService {
         }
     }
 
-    async getAllOrganizations() {
+    async getAllOrganizations(query) {
         try {
             await this.init();
             const collection = await this.db.collection(MongoOrganizationService.organizationCollection);
+            let allOrganizations;
 
-            var allOrganizations = await collection.find({}).toArray();
+            //reset query if null / undefined
+            query = query || {};
+            allOrganizations = await collection.find(query).toArray();
             return allOrganizations;
         } catch (err) {
             return new Error(err);

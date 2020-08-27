@@ -22,7 +22,7 @@ class MongoVolunteerService extends MongoService {
         try {
             await this.init();
             const collection = await this.db.collection(MongoVolunteerService.collectionName);
-            return await collection.finOne({ email: email });
+            return await collection.findOne({ email: email });
         } catch (e) {
             return new Error(e.message);
         }
