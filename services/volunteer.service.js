@@ -1,9 +1,11 @@
-const MongoService = require("./mongo/service.mongo.volunteer");
+const VolunteerMongoService = require("./mongo/service.mongo.volunteer");
 const CustomerModel = require("../models/model.customer");
 const UserMongoSerive = require('./mongo/service.mongo.users');
-let Validator = require('fastest-validator');
 const VolunteerModel = require('../models/model.volunteer');
+const OrganizationMongoService = require('./mongo/service.mongo.organization');
 
+
+let Validator = require('fastest-validator');
 /* create an instance of the validator */
 let organizationValidator = new Validator();
 
@@ -41,7 +43,7 @@ class VolunteerService {
         }
 
         let volunteer = new VolunteerModel(data);
-        let mongoService = new MongoService();
+        let mongoService = new VolunteerMongoService();
         const res = await mongoService.Create(volunteer);
         if (res instanceof Error) {
             throw {
@@ -65,7 +67,7 @@ class VolunteerService {
     }
 
     static async retrieve(email) {
-        let mongoService = new MongoService();
+        let mongoService = new VolunteerMongoService();
         const volunteer = await mongoService.Get(email);
         if (volunteer instanceof Error) {
             throw volunteer;
@@ -77,7 +79,7 @@ class VolunteerService {
     }
 
     static async update(data) {
-        let mongoService = new MongoService();
+        let mongoService = new VolunteerMongoService();
         const email = data.email;
         const volunteerUpdateRes = await mongoService.Update(data);
         if (volunteerUpdateRes instanceof Error) {
@@ -90,7 +92,7 @@ class VolunteerService {
     }
 
     static async delete(email) {
-        let mongoService = new MongoService();
+        let mongoService = new VolunteerMongoService();
         var deleteRes = await mongoService.Delete(email);
         if (deleteRes instanceof Error) {
             throw deleteRes;
@@ -98,12 +100,36 @@ class VolunteerService {
     }
 
     static async retrieveAll() {
-        let mongoService = new MongoService();
+        let mongoService = new VolunteerMongoService();
         const allVolunteers = await mongoService.getAll();
         if (allVolunteers instanceof Error) {
             throw allVolunteers;
         }
         return allVolunteers;
+    }
+
+    static async GetOrganizationForVolunteer(email) {
+        //find volunteer
+        let volunteer = await VolunteerService.retrieve(email); //will throw exception if failed or not exists
+
+        let organizationService = new OrganizationMongoService();
+
+        let query = {};
+        //region
+        query.regionCode = { $in: volunteer.regions };
+        query.hobbyID = { $in: volunteer.hobbies };
+        query.start = {
+            $gte: new Date(volunteer.start)            
+        };
+        query.end = {            
+            $lt: new Date(volunteer.end)
+        };
+        let organizationRes = await organizationService.getAllOrganizations(query);
+        if(organizationRes instanceof Error)
+        {
+            throw organizationRes;
+        }
+        return organizationRes;
     }
 }
 
