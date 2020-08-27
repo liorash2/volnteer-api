@@ -37,7 +37,19 @@ class MongoOrganizationService extends MongoService {
             await this.destroy();
         }
     }
-
+    async GetByMail(email) {
+        try {
+            await this.init();
+            const collection = await this.db.collection(MongoOrganizationService.organizationCollection);
+            return await collection.findOne({ email: email });
+        }
+        catch (e) {
+            return new Error(e);
+        }
+        finally {
+            await this.destroy();
+        }
+    }
     async getAllOrganizations(query) {
         try {
             await this.init();

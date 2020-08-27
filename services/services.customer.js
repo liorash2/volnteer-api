@@ -1,5 +1,7 @@
 const CustomerModel = require("../models/model.customer");
 const MongoUserService = require("./mongo/service.mongo.users");
+const VolunteerService = require("../services/volunteer.service");;
+const OrganizationService = require("../services/services.organization");
 
 let Validator = require('fastest-validator');
 
@@ -66,6 +68,24 @@ class CustomerService {
         if (customer == null) {
             throw new Error('Unable to retrieve a customer by (email:' + email + ')');
         }
+        if (customer.role === 'volunteer') {
+            
+            const volunteerRes = await VolunteerService.retrieve(email);
+            if(volunteerRes instanceof Error)
+            {
+                throw volunteerRes;
+            }
+            customer.obj = volunteerRes;
+        }
+        else if (customer.role === 'organization') {
+            const organizationRes = await OrganizationService.retrieveByMail(email);
+            if(organizationRes instanceof Error)
+            {
+                throw organizationRes;
+            }
+            customer.obj = organizationRes;
+        }
+
         return customer;
     }
 
@@ -86,18 +106,16 @@ class CustomerService {
     static async delete(_id) {
         let mongoService = new MongoUserService();
         var deleteRes = await mongoService.deleteUser(_id);
-        if(deleteRes instanceof Error)
-        {
+        if (deleteRes instanceof Error) {
             throw deleteRes;
-        }        
+        }
     }
 
-    static async retrieveAll(){
+    static async retrieveAll() {
         let mongoService = new MongoUserService();
         const allCustomers = await mongoService.getUsers();
-        if(allCustomers instanceof Error)
-        {
-            throw  allCustomers;
+        if (allCustomers instanceof Error) {
+            throw allCustomers;
         }
         return allCustomers;
     }
