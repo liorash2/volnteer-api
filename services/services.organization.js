@@ -61,19 +61,21 @@ class OrganizationService {
                 message: createUser.message
             }
         }
+        organization.volunteers = organization.volunteers || [];
         return organization;
     }
 
     static async retrieve(organizationID) {
         let mongoService = new MongoService();
-        const customer = await mongoService.get(organizationID);
-        if (customer instanceof Error) {
-            throw customer;
+        const organizationRes = await mongoService.getOrganizationByID(organizationID);
+        if (organizationRes instanceof Error) {
+            throw organizationRes;
         }
-        if (customer == null) {
+        if (organizationRes == null) {
             throw new Error('Unable to retrieve a customer by (email:' + email + ')');
         }
-        return customer;
+        organizationRes.volunteers = organizationRes.volunteers || [];
+        return organizationRes;
     }
 
     static async retrieveByMail(email) {
@@ -85,6 +87,7 @@ class OrganizationService {
         if (organizationRes == null) {
             throw new Error('Unable to retrieve a customer by (email:' + email + ')');
         }
+        organizationRes.volunteers = organizationRes.volunteers || [];
         return organizationRes;
     }
     static async update(_id, data) {
@@ -113,6 +116,9 @@ class OrganizationService {
         const allOrganizations = await mongoService.getAllOrganizations();
         if (allOrganizations instanceof Error) {
             throw allOrganizations;
+        }
+        for(let organization of allOrganizations){
+            organization.volunteers = organization.volunteers || [];
         }
         return allOrganizations;
     }
