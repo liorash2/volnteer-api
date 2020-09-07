@@ -55,7 +55,16 @@ router.put('/', async function (req, res, next) {
 	}
 
 });
+router.put('/register/:email/:organizationID', async function (req, res, next) {
+	try {
+		await VolunteerService.register(req.params.email, req.params.organizationID);
+		return res.status(200).json({ success: true });
 
+	} catch (e) {
+		return res.status(400).json({ error: e.message });
+	}
+
+});
 router.delete('/:email', async function (req, res, next) {
 	try {
 		const updateVolunteerRes = await VolunteerService.delete(req.params.email);
