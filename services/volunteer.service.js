@@ -115,6 +115,18 @@ class VolunteerService {
         let organizationService = new OrganizationMongoService();
 
         let query = {};
+
+        query.volunteers = { $in: [email] };
+
+        const organizationAlreadyVolunteer = await organizationService.getAllOrganizations(query);
+        if (organizationAlreadyVolunteer instanceof Error) {
+            throw organizationAlreadyVolunteer;
+        }
+        if (organizationAlreadyVolunteer.length > 0) {
+            return [];
+        }
+        
+        query = {};
         //region
         query.regionCode = { $in: volunteer.regions };
         query.hobbyID = { $in: volunteer.hobbies };

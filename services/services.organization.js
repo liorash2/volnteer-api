@@ -3,6 +3,7 @@ const UserModel = require("../models/model.customer");
 const MongoService = require("./mongo/service.mongo.organization");
 const UserMongoSerive = require('./mongo/service.mongo.users');
 const CustomerModel = require("../models/model.customer");
+const VolunteersService = require("./mongo/service.mongo.volunteer");
 
 let Validator = require('fastest-validator');
 /* create an instance of the validator */
@@ -117,10 +118,47 @@ class OrganizationService {
         if (allOrganizations instanceof Error) {
             throw allOrganizations;
         }
-        for(let organization of allOrganizations){
+        for (let organization of allOrganizations) {
             organization.volunteers = organization.volunteers || [];
         }
         return allOrganizations;
+    }
+
+    static async findVolunteers(organizationID) {
+        let mongoOrganization = new MongoService();
+        const organization = await mongoOrganization.getOrganizationByID(organizationID);
+        if (organization instanceof Error) {
+            throw organization;
+        }
+        const allOrgs = await mongoOrganization.getAllOrganizations();
+
+        if (allOrgs instanceof Error) {
+            throw allOrgs;
+        }
+        let allMembers = [];
+
+        for (let org of allOrgs) {
+            if (org.volunteers && typeof org.volunteers[Symbol.iterator] === 'function') {
+                for (let mail of org.volunteers) {
+                    if (!allMembers.find(m => m === mail)) {
+                        allMembers.push(mail);
+                    }
+                }
+            }
+        }
+        const query = {
+            regions: { $in: [organization.regionCode] },
+            hobbies: { $in: [organization.hobbyID] },
+            start: { $lte: new Date(organization.start) },
+            end: { $gt: new Date(organization.end) },
+            email: { $nin: allMembers }
+        };
+        const volunteerService = new VolunteersService();
+        let volunteersResponse = await volunteerService.getAll(query);
+        if (volunteersResponse instanceof Error) {
+            throw volunteersResponse;
+        }
+        return volunteersResponse;
     }
 }
 
