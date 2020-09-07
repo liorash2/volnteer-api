@@ -72,7 +72,14 @@ class MongoOrganizationService extends MongoService {
         try {
             await this.init();
             let collection = await this.db.collection(MongoOrganizationService.organizationCollection);
-            const res = await collection.updateOne({ _id: ObjectId(_id) }, { $set: data });
+            let updateResponse = await collection.updateOne({ _id: ObjectId(_id) }, { $set: data });
+            if (!updateResponse.matchedCount) {
+                return new Error("No organization matches id = " + _id);
+            }
+            if (!updateResponse.result.nModified) {
+                return new Error("No records updated in DB.");
+            }
+
             data._id = _id;
             return data;
         } catch (err) {

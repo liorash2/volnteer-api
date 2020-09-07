@@ -14,11 +14,11 @@ router.get('/', async function (req, res, next) {
 
 router.get('/:id', async function (req, res, next) {
 
-	const getAllOrganizations = await OrganizaionService.retrieve(req.params.id);
-	if (getAllOrganizations instanceof Error) {
-		next(getAllOrganizations);
+	const getOrganization = await OrganizaionService.retrieve(req.params.id);
+	if (getOrganization instanceof Error) {
+		next(getOrganization);
 	}
-	return res.json(getAllOrganizations);
+	return res.json(getOrganization);
 });
 router.post('/', async (req, res, next) => {
 
@@ -46,7 +46,7 @@ router.put('/:id', async function (req, res, next) {
 		const updatOrganizationResult = await OrganizaionService.update(req.params.id, req.body);
 		return res.status(200).json({ success: true });
 
-	} catch (e) {
+	} catch (err) {
 		return res.status(400).json({ error: err.message });
 	}
 
