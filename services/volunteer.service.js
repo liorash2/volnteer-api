@@ -119,17 +119,36 @@ class VolunteerService {
         query.regionCode = { $in: volunteer.regions };
         query.hobbyID = { $in: volunteer.hobbies };
         query.start = {
-            $gte: new Date(volunteer.start)            
+            $gte: new Date(volunteer.start)
         };
-        query.end = {            
+        query.end = {
             $lt: new Date(volunteer.end)
         };
         let organizationRes = await organizationService.getAllOrganizations(query);
-        if(organizationRes instanceof Error)
-        {
+        if (organizationRes instanceof Error) {
             throw organizationRes;
         }
         return organizationRes;
+    }
+
+    static async register(email, organizationID) {
+        let organizationService = new OrganizationMongoService();
+        const organization = await organizationService.getOrganizationByID(organizationID);
+        if (!organization) {
+            throw new Error('organization with ID ' + organizationID + ' does not exist.');
+        }
+        if (organization instanceof Error) {
+            throw organization;
+        }
+        organization.volunteers = organization.volunteers || [];
+        if (organization.volunteers.find(v => v === email)) {
+            throw new Error('volunteer ' + email + ' already registered to organization (id = ' + organizationID + ')');
+        }
+        organization.volunteers.push(email);
+        const updateRes = await organizationService.updateOrganization(organizationID, { volunteers: organization.volunteers });
+        if (updateRes instanceof Error) {
+            throw updateRes;
+        }
     }
 }
 
