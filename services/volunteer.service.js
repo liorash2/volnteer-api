@@ -128,6 +128,9 @@ class VolunteerService {
         if (organizationRes instanceof Error) {
             throw organizationRes;
         }
+        if (organizationRes && organizationRes.length) {
+            organizationRes = organizationRes.filter(o => (!o.volunteers || o.maxVolunteers > o.volunteers.length));
+        }
         return organizationRes;
     }
 
