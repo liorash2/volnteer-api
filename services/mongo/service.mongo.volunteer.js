@@ -3,11 +3,12 @@ const MongoService = require("../services.mongo");
 class MongoVolunteerService extends MongoService {
     static collectionName = "voulnteers";
 
-    async getAll() {
+    async getAll(query) {
         try {
             await this.init();
+            query = query || {};
             const collection = await this.db.collection(MongoVolunteerService.collectionName);
-            return await collection.find({}).toArray();
+            return await collection.find(query).toArray();
         }
         catch (e) {
             return new Error(e.message);

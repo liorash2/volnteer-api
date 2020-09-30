@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const OrganizaionService = require('../services/services.organization');
+const VolunteerService = require('../services/volunteer.service');
 
 /* GET orgniaztion listing. */
 router.get('/', async function (req, res, next) {
@@ -19,6 +20,16 @@ router.get('/:id', async function (req, res, next) {
 		next(getOrganization);
 	}
 	return res.json(getOrganization);
+});
+
+router.get('/volunteers/:id', async function (req, res, next) {
+	try {
+		const relevantVolunteers = await OrganizaionService.findVolunteers(req.params.id);
+		return res.json(relevantVolunteers);
+	} catch (e) {
+		next(e);
+	}
+
 });
 router.post('/', async (req, res, next) => {
 
